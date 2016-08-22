@@ -1,0 +1,156 @@
+@import com.redhat.lightblue.migrator.analyzer.model._
+
+@(
+	failedJobsWithLBResponse: scala.collection.immutable.List[FailedJob],
+	failedJobsOther: scala.collection.immutable.List[FailedJob],
+	date: java.util.Date
+
+	)
+
+<html>
+<head>
+<style type="text/css">
+HTML  CSS  JS  Result
+Edit on
+.list {
+  font-family:sans-serif;
+}
+td {
+  padding:10px;
+  border:solid 1px #eee;
+}
+
+input {
+  border:solid 1px #ccc;
+  border-radius: 5px;
+  padding:7px 14px;
+  margin-bottom:10px
+}
+input:focus {
+  outline:none;
+  border-color:#aaa;
+}
+.sort {
+  padding:8px 30px;
+  border-radius: 6px;
+  border:none;
+  display:inline-block;
+  color:#fff;
+  text-decoration: none;
+  background-color: #28a8e0;
+  height:30px;
+}
+.sort:hover {
+  text-decoration: none;
+  background-color:#1b8aba;
+}
+.sort:focus {
+  outline:none;
+}
+.sort:after {
+  display:inline-block;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  content:"";
+  position: relative;
+  top:-10px;
+  right:-5px;
+}
+.sort.asc:after {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #fff;
+  content:"";
+  position: relative;
+  top:4px;
+  right:-5px;
+}
+.sort.desc:after {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid #fff;
+  content:"";
+  position: relative;
+  top:-4px;
+  right:-5px;
+}
+</style>
+</head>
+<body>
+	<h1>Migration failures report generated on @date.toString</h1>
+
+	<p>Notes:</p>
+	<ul>
+		<li>Results are not live. This is a static page.</li>
+		<li>There are 2 tables on this page. Scroll down to see the other one.</li>
+	</ul>
+
+	<h2>Jobs which failed because Lightblue returned an error:</h2>
+
+	<div id="failedJobsWithLBResponse">
+		<input class="search" placeholder="Filter by name or error" />
+		<button class="sort" data-sort="configurationName">Sort by configurationName</button>
+
+		<table>
+			<thead>
+				<tr><th>job _id</th><th>configurationName</th><th>errors count</th><th>first error</th></tr>
+			</thead>
+			<tbody class="list">
+				@for(failedJob <- failedJobsWithLBResponse) {
+					<tr>
+						<td class="_id"><a href="./@{failedJob._id}.html">@failedJob._id</a></td>
+						<td class="configurationName">@failedJob.configurationName</td>
+						<td class="errorsCount">@failedJob.lightblueResponse.get.dataErrors.size</td>
+						<td class="firstError">@failedJob.lightblueResponse.get.error</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+
+	<h2>Jobs which failed for other reasons:</h2>
+
+	<div id="failedJobsOther">
+		<input class="search" placeholder="Filter by name or causedBy" />
+		<button class="sort" data-sort="configurationName">Sort by configurationName</button>
+		<table>
+			<thead>
+				<tr><th>job _id</th><th>configurationName</th><th>caused by</th></tr>
+			</thead>
+			<tbody class="list">
+				@for(failedJob <- failedJobsOther) {
+					<tr>
+						<td class="_id"><a href="./@{failedJob._id}.html">@failedJob._id</a></td>
+						<td class="configurationName">@failedJob.configurationName</td>
+						<td class="causedBy">@failedJob.causedBy</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+
+	<script src="http://listjs.com/no-cdn/list.js"></script>
+
+	<script>
+		var options1 = {
+			valueNames : [ 'configurationName', 'firstError' ]
+		};
+
+		var failedJobsWithLBResponseList = new List('failedJobsWithLBResponse', options1);
+
+		var options2 = {
+			valueNames : [ 'configurationName', 'causedBy' ]
+		};
+
+		var failedJobsOther = new List('failedJobsOther', options2);
+	</script>
+</body>
+
+</html>
