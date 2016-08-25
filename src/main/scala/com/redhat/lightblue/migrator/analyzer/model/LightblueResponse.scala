@@ -20,6 +20,15 @@ case class LightblueResponse(response: JsonNode) {
 
     def error: String = s"""$errorCode $msg"""
 
+    def errors: List[String] = {
+        val buf = scala.collection.mutable.MutableList[String]()
+        dataErrors.foreach { dataErr =>
+            dataErr.errors foreach { err => buf+=(s"""${err.errorCode} ${err.msg}""") }
+        }
+
+        buf.toList
+    }
+
     def pretty(): String = LightblueResponse.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(response)
 }
 

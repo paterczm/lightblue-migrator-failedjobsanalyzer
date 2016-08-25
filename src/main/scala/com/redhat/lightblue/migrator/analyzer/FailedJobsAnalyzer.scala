@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import java.nio.file.Paths
 import java.nio.file.Files
 import java.nio.charset.StandardCharsets
+import scala.util.control.Breaks._
 
 import com.redhat.lightblue.migrator.analyzer.model._
 
@@ -22,7 +23,7 @@ import com.redhat.lightblue.migrator.analyzer.model._
  * FailedJobAnalyzer
  *
  */
-class FailedJobsAnalyzer(args: Array[String], postProcessorsList: Option[List[FailedJob => Unit]])  {
+class FailedJobsAnalyzer(args: Array[String], classifiersList: Option[List[FailedJob => Boolean]])  {
 
     def this(args: Array[String]) = this(args, None)
 
@@ -37,10 +38,19 @@ class FailedJobsAnalyzer(args: Array[String], postProcessorsList: Option[List[Fa
 
     val failedJobs = fetchFailedJobs()
 
-    postProcessorsList match {
+    classifiersList match {
         case None => ;
-        // apply all post processors
-        case Some(postProcessors) => failedJobs.foreach({ job => postProcessors.foreach(_(job)) })
+        case Some(classifiers) => failedJobs.foreach({ job => {
+            breakable {
+                // apply classifiers until one matches
+                classifiers.foreach { classifier =>
+                    if (classifier(job)) {
+                        break;
+                    }
+                }
+            }
+        }
+        })
     }
 
     generateHtmlReport(failedJobs)
