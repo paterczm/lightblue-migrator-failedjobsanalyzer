@@ -22,7 +22,9 @@ import com.redhat.lightblue.migrator.analyzer.model._
  * FailedJobAnalyzer
  *
  */
-class FailedJobsAnalyzer(args: Array[String])  {
+class FailedJobsAnalyzer(args: Array[String], postProcessorsList: Option[List[FailedJob => Unit]])  {
+
+    def this(args: Array[String]) = this(args, None)
 
     val clientFilePath = args(0)
 
@@ -34,6 +36,12 @@ class FailedJobsAnalyzer(args: Array[String])  {
     val lbClient = new LightblueHttpClient(clientFilePath)
 
     val failedJobs = fetchFailedJobs()
+
+    postProcessorsList match {
+        case None => ;
+        // apply all post processors
+        case Some(postProcessors) => failedJobs.foreach({ job => postProcessors.foreach(_(job)) })
+    }
 
     generateHtmlReport(failedJobs)
 
