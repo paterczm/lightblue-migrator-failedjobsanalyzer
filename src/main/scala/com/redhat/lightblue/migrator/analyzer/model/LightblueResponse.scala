@@ -16,15 +16,12 @@ case class LightblueResponse(response: JsonNode) {
         jsonArray.map(x => LightblueResponse.mapper.treeToValue(x, classOf[DataError]))
     }
 
-    def msg: String = dataErrors(0).errors(0).msg
-    def errorCode: String = dataErrors(0).errors(0).errorCode
-
-    def error: String = s"""$errorCode $msg"""
+    def error: String = dataErrors(0).errors(0).error
 
     def errors: List[String] = {
         val buf = scala.collection.mutable.MutableList[String]()
         dataErrors.foreach { dataErr =>
-            dataErr.errors foreach { err => buf+=(s"""${err.errorCode} ${err.msg}""") }
+            dataErr.errors foreach { err => buf+=(err.error) }
         }
 
         buf.toList
@@ -55,4 +52,6 @@ object LightblueResponse {
 @JsonIgnoreProperties(ignoreUnknown = true)
 case class DataError(errors: List[Error], @JsonRawValue data: JsonNode)
 @JsonIgnoreProperties(ignoreUnknown = true)
-case class Error(context: String, errorCode: String, msg: String)
+case class Error(context: String, errorCode: String, msg: String) {
+    def error = s"""$errorCode $msg"""
+}

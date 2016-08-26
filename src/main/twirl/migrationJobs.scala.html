@@ -1,0 +1,22 @@
+@import com.redhat.lightblue.migrator.analyzer.model._
+@(
+	migrationJobs: scala.collection.immutable.List[MigrationJob]
+	)
+{
+  "objectType":"migrationJob",
+  "data": [
+  @for((job, index) <- migrationJobs.zipWithIndex) {
+       {
+        "_id": "@{job.configurationName}Dups-batch@index",
+        "configurationName":"@job.configurationName",
+        "query":"@job.query",
+        "generated":false,
+        "scheduledDate":"20150101T12:00:00.000+0000",
+        "status":"available"
+       }
+       @if(index != migrationJobs.size-1){
+       ,
+       }
+   }
+   ]
+}
