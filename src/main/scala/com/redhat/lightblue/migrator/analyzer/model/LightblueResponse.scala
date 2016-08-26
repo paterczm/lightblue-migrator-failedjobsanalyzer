@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 
 import scala.collection.JavaConversions._
+import com.fasterxml.jackson.annotation.JsonRawValue
 
 case class LightblueResponse(response: JsonNode) {
     def dataErrors: List[DataError] = {
@@ -52,6 +53,6 @@ object LightblueResponse {
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-case class DataError(errors: List[Error])
+case class DataError(errors: List[Error], @JsonRawValue data: JsonNode)
 @JsonIgnoreProperties(ignoreUnknown = true)
 case class Error(context: String, errorCode: String, msg: String)
