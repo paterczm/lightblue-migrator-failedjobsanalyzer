@@ -73,12 +73,7 @@ class FailedJobsAnalyzer(args: Array[String], classifiersList: Option[List[Faile
     def generateHtmlReport(failedJobs: List[FailedJob]) {
         println(s"""Found ${failedJobs.length} failed jobs. Processing...""")
 
-        val jobsWithLBResponse = failedJobs.filter { j => j.lightblueResponse.isDefined }
-        val jobsOther = failedJobs.filter { j => !j.lightblueResponse.isDefined }
-
-        val htmlReportPage = html.index.render(jobsWithLBResponse, jobsOther, new java.util.Date());
-
-        Files.write(Paths.get(s"""./report/index.html"""), htmlReportPage.body.getBytes(StandardCharsets.UTF_8))
+        val errorClassCountsMap = scala.collection.mutable.HashMap.empty[String, Int]
 
         failedJobs foreach (failedJob => {
 
@@ -88,7 +83,24 @@ class FailedJobsAnalyzer(args: Array[String], classifiersList: Option[List[Faile
             }
 
             Files.write(Paths.get(s"""./report/${failedJob._id}.html"""), s"""<pre>$error</pre>""".getBytes(StandardCharsets.UTF_8))
+
+            val classId = failedJob.custom match {
+                case Some(x) => x.id
+                case None => "None"
+            }
+
+            errorClassCountsMap(classId) = errorClassCountsMap.get(classId) match {
+                case Some(x) => x+1
+                case None => 1
+            }
         })
+
+        val jobsWithLBResponse = failedJobs.filter { j => j.lightblueResponse.isDefined }
+        val jobsOther = failedJobs.filter { j => !j.lightblueResponse.isDefined }
+
+        val htmlReportPage = html.index.render(jobsWithLBResponse, jobsOther, scala.collection.immutable.ListMap(errorClassCountsMap.toSeq.sortWith(_._2 > _._2):_*), new java.util.Date());
+
+        Files.write(Paths.get(s"""./report/index.html"""), htmlReportPage.body.getBytes(StandardCharsets.UTF_8))
 
         println("Done!")
     }

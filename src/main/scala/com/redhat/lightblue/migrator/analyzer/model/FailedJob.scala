@@ -28,6 +28,6 @@ object FailedJob {
 @JsonIgnoreProperties(ignoreUnknown = true)
 case class JobExecution(errorMsg: String)
 
-case class Custom(comment: String, known: Boolean) {
-    def this(comment: String) = this(comment, true)
+case class Custom(id: String, comment: String, known: Boolean) {
+    def this(id: String, comment: String) = this(id, comment, true)
 }

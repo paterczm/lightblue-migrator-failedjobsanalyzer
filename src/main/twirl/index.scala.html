@@ -3,6 +3,7 @@
 @(
 	failedJobsWithLBResponse: scala.collection.immutable.List[FailedJob],
 	failedJobsOther: scala.collection.immutable.List[FailedJob],
+	errorClassCountsMap: scala.collection.immutable.Map[String, Int],
 	date: java.util.Date
 
 	)
@@ -138,6 +139,15 @@ input:focus {
 				}
 			</tbody>
 		</table>
+	</div>
+
+	<div>
+		<h2>Job failure counts</h2>
+		<ul>
+		@for((key, value) <- errorClassCountsMap) {
+			<li>@value -> @key</li>
+		}
+		</ul>
 	</div>
 
 	<script src="http://listjs.com/no-cdn/list.js"></script>
